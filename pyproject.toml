@@ -13,8 +13,9 @@ packages = [
 primitive-db = "src.primitive_db.main:main"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 prompt = "^0.4.1"
+prettytable = "^3.16.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.0"

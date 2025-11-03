@@ -1,0 +1,14 @@
+[
+  {
+    "ID": 1,
+    "title": "Ноутбук",
+    "price": 50000,
+    "in_stock": true
+  },
+  {
+    "ID": 2,
+    "title": "Мышь",
+    "price": 1500,
+    "in_stock": false
+  }
+]
