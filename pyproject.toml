@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "project2-pozdnyakov-egor-m25-555"
-version = "0.1.0"
+version = "0.2.0"  # Увеличиваем версию
 description = "Primitive database project"
 authors = ["Egor Pozdnyakov <g17or@yandex.ru>"]
 readme = "README.md"
@@ -10,7 +10,7 @@ packages = [
 ]
 
 [tool.poetry.scripts]
-project = "src.primitive_db.main:main"
+primitive-db = "src.primitive_db.main:main"
 
 [tool.poetry.dependencies]
 python = "^3.8"
