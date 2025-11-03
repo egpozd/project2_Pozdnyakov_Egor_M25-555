@@ -1,0 +1,7 @@
+{"version": 2, "width": 55, "height": 13, "timestamp": 1762174141, "env": {"SHELL": "/bin/bash", "TERM": "xterm-256color"}}
+[0.041036, "o", "\u001b[?2004h\u001b]0;egor@egor-Lenovo-IdeaPad-S340-15API: ~/MAGISTRATURA/project2_Pozdnyakov_Egor_M25-555/project2_Pozdnyakov_Egor_M25-555\u0007\u001b[01;32megor@egor-Lenovo-IdeaPad-S340-15API\u001b[00m:\u001b[01;34m~/MAGISTRATURA/project2_Pozdnyakov_Egor_M25-555/project2_Pozdnyakov_Egor_M25-555\u001b[00m$ "]
+[8.365705, "o", "\u001b[7mcreate_table users name:str age:int is_active:b\u001b[27m\u001b[7mo\u001b[27m\u001b[7mol\u001b[27m"]
+[9.081797, "o", "\u001b[A\u001b[C\u001b[C\u001b[C\u001b[C\u001b[Ccreate_table users name:str age:int is_active:bool\r\n\u001b[?2004l\r"]
+[10.183383, "o", "create_table: команда не найдена\r\n"]
+[10.212167, "o", "\u001b[?2004h\u001b]0;egor@egor-Lenovo-IdeaPad-S340-15API: ~/MAGISTRATURA/project2_Pozdnyakov_Egor_M25-555/project2_Pozdnyakov_Egor_M25-555\u0007\u001b[01;32megor@egor-Lenovo-IdeaPad-S340-15API\u001b[00m:\u001b[01;34m~/MAGISTRATURA/project2_Pozdnyakov_Egor_M25-555/project2_Pozdnyakov_Egor_M25-555\u001b[00m$ "]
+[15.284429, "o", "\u001b[?2004l\r\r\nexit\r\n"]

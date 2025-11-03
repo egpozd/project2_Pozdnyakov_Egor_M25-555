@@ -10,5 +10,23 @@
     "name": "Иван",
     "age": 32,
     "is_active": true
+  },
+  {
+    "ID": 4,
+    "name": "Алексей",
+    "age": 29,
+    "is_active": true
+  },
+  {
+    "ID": 5,
+    "name": "Алексей",
+    "age": 29,
+    "is_active": true
+  },
+  {
+    "ID": 6,
+    "name": "Мария",
+    "age": 25,
+    "is_active": false
   }
 ]
