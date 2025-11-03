@@ -1,7 +1,10 @@
 from prettytable import PrettyTable
 
+from .decorators import confirm_action, create_cacher, handle_db_errors, log_time
 from .utils import load_table_data, save_table_data
 
+# Создаем кэшер для результатов запросов
+cache_result = create_cacher()
 
 # Поддерживаемые типы данных
 SUPPORTED_TYPES = {'int', 'str', 'bool'}
@@ -29,6 +32,7 @@ def validate_column_definition(column_def):
     return True, (name.strip(), col_type)
 
 
+@handle_db_errors
 def create_table(metadata, table_name, columns):
     """
     Создает новую таблицу в метаданных.
@@ -68,6 +72,8 @@ def create_table(metadata, table_name, columns):
     return True, success_msg
 
 
+@handle_db_errors
+@confirm_action("удаление таблицы")
 def drop_table(metadata, table_name):
     """
     Удаляет таблицу из метаданных.
@@ -79,6 +85,7 @@ def drop_table(metadata, table_name):
     return True, f'Таблица "{table_name}" успешно удалена.'
 
 
+@handle_db_errors
 def list_tables(metadata):
     """
     Возвращает список всех таблиц.
@@ -93,6 +100,7 @@ def list_tables(metadata):
         return "\n".join([f"- {table}" for table in tables])
 
 
+@handle_db_errors
 def validate_data_types(metadata, table_name, values):
     """
     Проверяет соответствие типов данных значениям.
@@ -123,6 +131,8 @@ def validate_data_types(metadata, table_name, values):
     return True, "OK"
 
 
+@handle_db_errors
+@log_time
 def insert(metadata, table_name, values):
     """
     Вставляет новую запись в таблицу.
@@ -158,9 +168,13 @@ def insert(metadata, table_name, values):
     # Сохраняем данные
     save_table_data(table_name, table_data)
     
-    return True, f'Запись с ID={new_id} успешно добавлена в таблицу "{table_name}".'
+    return True, (
+        f'Запись с ID={new_id} успешно добавлена в таблицу "{table_name}".'
+    )
 
 
+@handle_db_errors
+@log_time
 def select(metadata, table_name, where_clause=None):
     """
     Выбирает записи из таблицы.
@@ -168,40 +182,48 @@ def select(metadata, table_name, where_clause=None):
     if table_name not in metadata:
         return False, f'Таблица "{table_name}" не существует.'
     
-    # Загружаем данные таблицы
-    table_data = load_table_data(table_name)
+    # Создаем ключ для кэша
+    cache_key = f"select_{table_name}_{str(where_clause)}"
     
-    if not table_data:
-        return True, "Таблица пуста."
-    
-    # Фильтруем данные если есть условие
-    if where_clause:
-        filtered_data = []
-        for record in table_data:
-            match = True
-            for column, value in where_clause.items():
-                if record.get(column) != value:
-                    match = False
-                    break
-            if match:
-                filtered_data.append(record)
+    def _select_data():
+        # Загружаем данные таблицы
+        table_data = load_table_data(table_name)
         
-        if not filtered_data:
-            return True, "Записей, удовлетворяющих условию, не найдено."
-        table_data = filtered_data
+        if not table_data:
+            return True, "Таблица пуста."
+        
+        # Фильтруем данные если есть условие
+        if where_clause:
+            filtered_data = []
+            for record in table_data:
+                match = True
+                for column, value in where_clause.items():
+                    if record.get(column) != value:
+                        match = False
+                        break
+                if match:
+                    filtered_data.append(record)
+            
+            if not filtered_data:
+                return True, "Записей, удовлетворяющих условию, не найдено."
+            table_data = filtered_data
+        
+        # Создаем красивую таблицу для вывода
+        columns = [col.split(':')[0] for col in metadata[table_name]['columns']]
+        table = PrettyTable()
+        table.field_names = columns
+        
+        for record in table_data:
+            row = [record.get(col, '') for col in columns]
+            table.add_row(row)
+        
+        return True, table
     
-    # Создаем красивую таблицу для вывода
-    columns = [col.split(':')[0] for col in metadata[table_name]['columns']]
-    table = PrettyTable()
-    table.field_names = columns
-    
-    for record in table_data:
-        row = [record.get(col, '') for col in columns]
-        table.add_row(row)
-    
-    return True, table
+    # Используем кэш для одинаковых запросов
+    return cache_result(cache_key, _select_data)
 
 
+@handle_db_errors
 def update(metadata, table_name, set_clause, where_clause):
     """
     Обновляет записи в таблице.
@@ -219,7 +241,9 @@ def update(metadata, table_name, set_clause, where_clause):
     table_columns = [col.split(':')[0] for col in metadata[table_name]['columns']]
     for column in set_clause.keys():
         if column not in table_columns:
-            return False, f'Столбец "{column}" не существует в таблице "{table_name}".'
+            return False, (
+                f'Столбец "{column}" не существует в таблице "{table_name}".'
+            )
     
     # Находим и обновляем записи
     updated_count = 0
@@ -242,9 +266,13 @@ def update(metadata, table_name, set_clause, where_clause):
     # Сохраняем данные
     save_table_data(table_name, table_data)
     
-    return True, f'{updated_count} запись(ей) успешно обновлено в таблице "{table_name}".'
+    return True, (
+        f'{updated_count} запись(ей) успешно обновлено в таблице "{table_name}".'
+    )
 
 
+@handle_db_errors
+@confirm_action("удаление записей")
 def delete(metadata, table_name, where_clause):
     """
     Удаляет записи из таблицы.
@@ -287,9 +315,12 @@ def delete(metadata, table_name, where_clause):
     # Сохраняем данные
     save_table_data(table_name, table_data)
     
-    return True, f'{deleted_count} запись(ей) успешно удалено из таблицы "{table_name}".'
+    return True, (
+        f'{deleted_count} запись(ей) успешно удалено из таблице "{table_name}".'
+    )
 
 
+@handle_db_errors
 def info_table(metadata, table_name):
     """
     Выводит информацию о таблице.

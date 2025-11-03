@@ -4,15 +4,15 @@ import prompt
 
 from .core import (
     create_table,
+    delete,
     drop_table,
     info_table,
     insert,
     list_tables,
     select,
     update,
-    delete,
 )
-from .parser import parse_set_clause, parse_where_condition, parse_values_list
+from .parser import parse_set_clause, parse_values_list, parse_where_condition
 from .utils import load_metadata, save_metadata
 
 
@@ -20,12 +20,27 @@ def print_help():
     """Печатает справочную информацию."""
     print("\n***Операции с данными***")
     print("Функции:")
-    print("<command> insert into <имя_таблицы> values (<значение1>, ...) - создать запись")
-    print("<command> select from <имя_таблицы> [where <условие>] - прочитать записи")
-    print("<command> update <имя_таблицы> set <столбец=значение> [where <условие>] - обновить запись")
-    print("<command> delete from <имя_таблицы> [where <условие>] - удалить запись")
+    print(
+        "<command> insert into <имя_таблицы> values (<значение1>, ...) - "
+        "создать запись"
+    )
+    print(
+        "<command> select from <имя_таблицы> [where <условие>] - "
+        "прочитать записи"
+    )
+    print(
+        "<command> update <имя_таблицы> set <столбец=значение> "
+        "[where <условие>] - обновить запись"
+    )
+    print(
+        "<command> delete from <имя_таблицы> [where <условие>] - "
+        "удалить запись"
+    )
     print("<command> info <имя_таблицы> - вывести информацию о таблице")
-    print("<command> create_table <имя_таблицы> <столбец1:тип> .. - создать таблицу")
+    print(
+        "<command> create_table <имя_таблицы> <столбец1:тип> .. - "
+        "создать таблицу"
+    )
     print("<command> list_tables - показать список всех таблиц")
     print("<command> drop_table <имя_таблицы> - удалить таблицу")
     print("<command> exit - выход из программы")
@@ -97,9 +112,13 @@ def run():
                 print(result)
                 
             elif command == 'insert':
-                if len(args) < 4 or args[0].lower() != 'into' or args[2].lower() != 'values':
+                if (len(args) < 4 or args[0].lower() != 'into' or 
+                        args[2].lower() != 'values'):
                     print("Ошибка: Неверный формат команды INSERT")
-                    print("Использование: insert into <таблица> values (<значение1>, <значение2>, ...)")
+                    print(
+                        "Использование: insert into <таблица> "
+                        "values (<значение1>, <значение2>, ...)"
+                    )
                     continue
                 
                 table_name = args[1]
@@ -115,7 +134,10 @@ def run():
             elif command == 'select':
                 if len(args) < 2 or args[0].lower() != 'from':
                     print("Ошибка: Неверный формат команды SELECT")
-                    print("Использование: select from <таблица> [where <условие>]")
+                    print(
+                        "Использование: select from <таблица> "
+                        "[where <условие>]"
+                    )
                     continue
                 
                 table_name = args[1]
@@ -142,7 +164,10 @@ def run():
             elif command == 'update':
                 if len(args) < 4 or args[1].lower() != 'set':
                     print("Ошибка: Неверный формат команды UPDATE")
-                    print("Использование: update <таблица> set <столбец=значение> [where <условие>]")
+                    print(
+                        "Использование: update <таблица> set <столбец=значение> "
+                        "[where <условие>]"
+                    )
                     continue
                 
                 table_name = args[0]
@@ -159,9 +184,13 @@ def run():
                 
                 try:
                     set_clause = parse_set_clause(set_clause_str)
-                    where_clause = parse_where_condition(where_str) if where_str else None
+                    where_clause = (
+                        parse_where_condition(where_str) if where_str else None
+                    )
                     
-                    success, message = update(metadata, table_name, set_clause, where_clause)
+                    success, message = update(
+                        metadata, table_name, set_clause, where_clause
+                    )
                     print(message)
                 except Exception as e:
                     print(f"Ошибка: {e}")
@@ -169,7 +198,10 @@ def run():
             elif command == 'delete':
                 if len(args) < 2 or args[0].lower() != 'from':
                     print("Ошибка: Неверный формат команды DELETE")
-                    print("Использование: delete from <таблица> [where <условие>]")
+                    print(
+                        "Использование: delete from <таблица> "
+                        "[where <условие>]"
+                    )
                     continue
                 
                 table_name = args[1]
@@ -201,7 +233,8 @@ def run():
                 print(f"Функции '{command}' нет. Попробуйте снова.")
                 
         except Exception as e:
-            print(f"Произошла ошибка: {e}")
+            # Теперь эта обработка будет ловить только ошибки парсинга команд
+            print(f"Ошибка обработки команды: {e}")
             print("Попробуйте снова.")
 
 
